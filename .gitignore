@@ -2,3 +2,4 @@ config.py
 .ipynb_checkpoints
 __pycache__
 kaggle_competitions/learn-together/assets
+kaggle_competitions/behavioral-risk-factor-surveillance-system/assets
