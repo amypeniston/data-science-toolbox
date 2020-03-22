@@ -2,6 +2,8 @@ from mrjob.job import MRJob
 from mrjob.step import MRStep
 
 class MovieRatingsCount(MRJob):
+	"""Return list of movies sorted by number of reviews."""
+
     def steps(self):
         return [
             MRStep(mapper=self.mapper_get_movies,
