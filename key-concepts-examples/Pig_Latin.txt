@@ -1,0 +1,26 @@
+-- EXAMPLE PIG SCRIPT
+
+-- Load data into relations
+ratings = LOAD '/user/maria_dev/ml-100k/u.data' AS (userID:int, movieID:int, rating:int, ratingTime:int);
+metadata = LOAD '/user/maria_dev/ml-100k/u.item' USING PigStorage('|') AS (movieID:int, movieTitle:chararray, releaseDate:chararray, videoRelease:chararray, imdbLink:chararray);
+
+-- Convert date into numerical value
+moviesLookup = FOREACH metadata GENERATE movieID, movieTitle, ToUnixTime(ToDate(releaseDate, 'dd-MMM-yyyy')) AS releaseTime;
+
+-- Group ratings
+ratingsByMovie = GROUP ratings by movieID;
+
+-- Perform aggregation calculation (average)
+avgMovieRatings = FOREACH ratingsByMovie GENERATE group AS movieID, AVG(ratings.rating) AS avgRating;
+
+-- Filter for 5 star movies
+fiveStarMovies = FILTER avgMovieRatings BY avgRating > 4.0;
+
+-- Join with lookup for name
+fiveStarMoviesWithNames = JOIN fiveStarMovies BY movieID, moviesLookup BY movieID;
+
+-- Order
+oldestFiveStarMoviesWithNames = ORDER fiveStarMoviesWithNames BY moviesLookup::releaseTime;
+
+-- Print results
+DUMP oldestFiveStarMoviesWithNames;
